@@ -1,12 +1,19 @@
 package hello.exception.servlet;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @Slf4j
@@ -32,6 +39,22 @@ public class ErrorPageController {
         printErrorInfo(request);
         return "error-page/500";
     }
+
+    @RequestMapping(value = "/error-page/500",produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String,Object>> errorpage500api(
+            HttpServletRequest request,HttpServletResponse response){
+
+        log.info("API errorpage 500");
+        HashMap<String, Object> map = new HashMap<>();
+        Exception ex =(Exception) request.getAttribute(ERROR_EXCEPTION);
+        map.put("status",request.getAttribute(ERROR_STATUS_CODE));
+        map.put("message",ex.getMessage())  ;
+
+        Integer statusCode = (Integer)request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
+        return new ResponseEntity<>(map, HttpStatus.valueOf(statusCode));
+    }
+
+
     private void printErrorInfo(HttpServletRequest request){
         log.info("ERROR_EXCEPTION ={}",request.getAttribute(ERROR_EXCEPTION));
         log.info("ERROR_EXCEPTION_TYPE ={}",request.getAttribute(ERROR_EXCEPTION_TYPE));
